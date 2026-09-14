@@ -1,0 +1,7 @@
+Column Name,Data Type,Description,Valid Range,Missing Values,Sample Values,Notes
+sku,Integer,Stock Keeping Unit - unique product identifier,0 to variable,None,"0, 1, 2, 3, 4, 5, 6, 7, 8, 9",Represents distinct products in catalog
+price,Float,Product price or cost value,0.0 to ~4.4,None,"0.308003649, 0.880048144, 0.0000440, 3.520500626","May be normalized or relative units. Scientific notation present (4.40E-05)"
+quantity,Integer,Number of units in transaction,1 to 362+,None,"1, 2, 9, 8, 10, 18, 36, 343, 362","Always positive. Represents transaction volume"
+order,Integer,Order sequence or identifier,0 to variable,None,"0, 1, 2, 3, 4, 5, 10, 15","Sequential or grouped order numbering"
+duration,Float,Time duration for transaction,~1.0 to ~18.3,None,"1.156089792, 2.274961365, 18.331711, 1.118808304","Likely in hours or days. All positive values"
+category,Integer,Product/transaction category,3-30 (observed),None,"3, 5, 10, 17, 23, 30","Discrete categorical groupings. Verify actual categories"
