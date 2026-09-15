@@ -36,10 +36,10 @@ def train_incremental():
     batch_count = 0
     
     for X_batch, y_batch in create_mini_batches(X_train, y_train):
-        # Train on this batch
-        loss = model.train_on_batch(X_batch, y_batch)
+        metrics = model.train_on_batch(X_batch, y_batch)
+        loss = metrics[0] if isinstance(metrics, list) else metrics
         mse_history.append(loss)
-        
+
         batch_count += 1
         if batch_count % 100 == 0:
             print(f"   Processed {batch_count} batches...")
