@@ -4,9 +4,9 @@
 
 Build a feed-forward neural network that predicts product quantity sold using incremental learning on large datasets. The model trains on 400,000 samples in approximately 48 seconds and achieves an R² score of 0.3235 on test data.
 
-## Status: Complete
+## Status: In Development
 
-Model is fully implemented, tested, and performing well. All components working as intended with good generalization (test R² > training R²).
+Model implementation is complete and has been trained and tested. All core components are functional. Performance results and metrics are logged with timestamps for each training run. See performance results below for latest run data.
 
 ## Files
 
@@ -97,13 +97,17 @@ Total Parameters: 3,009 (11.75 KB)
 
 ## Performance Results
 
-### Metrics (500k dataset)
+Each training run generates timestamped results saved to `results/metrics.csv` with the exact date and time of the run.
+
+### Latest Run Example (500k dataset)
 | Metric | Training | Test |
 |--------|----------|------|
 | **R² Score** | 0.3117 | **0.3235** |
 | **MSE** | 1768.13 | 1676.84 |
 | **RMSE** | 42.05 | 40.95 |
 | **Training Time** | ~48 seconds | - |
+
+**Note:** Check `results/metrics.csv` for timestamped results from all training runs.
 
 ### Model Performance Analysis
 - Test R² > Training R²: Excellent generalization (no overfitting)
@@ -222,10 +226,11 @@ Potential enhancements for future work:
 
 ## Status Summary
 
-Status: COMPLETE AND TESTED
+Status: IN DEVELOPMENT - Model has been run and tested
 
 - Model: Fully implemented and working
-- Training: Successful on full 500k dataset
-- Testing: Integration test passing
+- Training: Successfully runs on full 500k dataset
+- Testing: Integration test passes, results vary per run (timestamped)
 - Documentation: Complete and detailed
-- Performance: R² = 0.3235 (good generalization)
+- Performance: R² = 0.3235 in latest test run (good generalization)
+- Logging: All runs timestamped in metrics.csv for tracking progress
