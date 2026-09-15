@@ -20,9 +20,8 @@ Model implementation is complete and has been trained and tested. All core compo
 - `code/utils.py` - Utility functions placeholder
 
 ### Documentation (`rebecca/` directory)
-- `rebecca/MODEL_DOCUMENTATION.md` - Comprehensive 9.8 KB guide including model architecture, training details, usage instructions, and performance analysis
+- `rebecca/model-documentation.md` - Comprehensive model guide including model architecture, training details, usage instructions, and performance analysis
 - `rebecca/network-architecture.md` - Markdown-formatted architecture specifications with layer details, parameters, training configuration, and performance metrics
-- `rebecca/network-architecture` - Original architecture notes file
 
 ### Data (`data/` directory)
 - `data/pricing.csv` - Main dataset with 500,000 product records and 6 features (sku, price, quantity, order, duration, category)
@@ -224,9 +223,8 @@ Configuration stored in `pyproject.toml`
 ## Documentation
 
 For detailed information, see (all located in `rebecca/` directory):
-- **MODEL_DOCUMENTATION.md** - Comprehensive 9.8 KB guide with model overview, architecture, training details, and usage instructions
+- **model-documentation.md** - Comprehensive guide with model overview, architecture, training details, and usage instructions
 - **network-architecture.md** - Markdown-formatted architecture specifications with layer details, parameters, training configuration, and performance metrics
-- **network-architecture** - Original architecture notes file
 
 ## Project Structure
 
@@ -247,9 +245,8 @@ Deep-Learning-Assignment-1/
 │   ├── trained_model.h5       # Trained neural network weights
 │   └── metrics.csv            # Timestamped performance metrics
 ├── rebecca/                   # Project documentation
-│   ├── MODEL_DOCUMENTATION.md # Comprehensive model guide (9.8 KB)
-│   ├── network-architecture.md # Architecture specifications (markdown)
-│   └── network-architecture   # Original architecture notes
+│   ├── model-documentation.md # Comprehensive model guide
+│   └── network-architecture.md # Architecture specifications (markdown)
 ├── given-materials/           # Assignment reference materials
 │   ├── Group_Assignment_1.pdf # Assignment specification
 │   └── Groups_from_Zaretzki.xlsx # Reference data
