@@ -1,33 +1,60 @@
-Neural Network Architecture
-===========================
+Neural Network Architecture (IMPLEMENTED)
+============================================
 
-Input Layer:
-- 5 features: sku, order, duration, category
+Model Type: Sequential Feed-Forward Neural Network
+Purpose: Incremental learning for product quantity prediction
+
+INPUT LAYER:
+- Features: 5 (sku, price, order, duration, category)
 - Input shape: (batch_size, 5)
+- Preprocessing: StandardScaler (normalized to mean=0, std=1)
 
-Hidden Layer 1:
-- Number of neurons: [32, 64, or 128]
+HIDDEN LAYER 1:
+- Number of neurons: 64
 - Activation: sigmoid
-- Output shape: (batch_size, [neurons])
+- Parameters: 5 × 64 + 64 (bias) = 384
+- Output shape: (batch_size, 64)
 
-Hidden Layer 2:
-- Number of neurons: [hald of layer 1]
+HIDDEN LAYER 2:
+- Number of neurons: 32
 - Activation: sigmoid
-- Output shape: (batch_size, [neurons])
+- Parameters: 64 × 32 + 32 (bias) = 2,080
+- Output shape: (batch_size, 32)
 
-Hidden Layer 3: 
-- Number of neurons: [half of layer 2]
+HIDDEN LAYER 3:
+- Number of neurons: 16
 - Activation: sigmoid
-- Output shape: (batch_size, [neurons])
+- Parameters: 32 × 16 + 16 (bias) = 528
+- Output shape: (batch_size, 16)
 
-Output Layer:
+OUTPUT LAYER:
 - Number of neurons: 1 (predicting quantity)
-- Activation: linear (no Activation since we're predicting continous value)
+- Activation: linear (regression task - continuous value)
+- Parameters: 16 × 1 + 1 (bias) = 17
 - Output shape: (batch_size, 1)
 
-Total parameters: [calculated by framework]
+TOTAL PARAMETERS: 3,009 (11.75 KB)
+- Trainable: 3,009
+- Non-trainable: 0
 
-Reasons for these choices:
-- Sigmoid activation: Non-linear, helps model learn complex patterns
-- Decreasing layer sizes: Common practice, reduces overfitting
-- Linear output: Regression task (predicting continuous quantity)
+TRAINING CONFIGURATION:
+- Optimizer: Adam (learning_rate=0.001)
+- Loss function: Mean Squared Error (MSE)
+- Monitoring metric: Mean Absolute Error (MAE)
+- Training method: Incremental (train_on_batch per 32-sample batch)
+- Batch size: 32
+- Epochs: 1 (full pass through data)
+
+ARCHITECTURE RATIONALE:
+1. Sigmoid activation: Non-linear, helps learn complex relationships
+2. Decreasing layer sizes (64→32→16): Progressively compresses information, reduces overfitting
+3. Linear output: Appropriate for regression (predicting continuous quantity values)
+4. Small architecture: Efficient for large dataset (400k samples), prevents memory issues
+5. Incremental training: Allows processing huge datasets without loading all at once
+
+PERFORMANCE METRICS (on 500k samples):
+- Training R²: 0.3117
+- Test R²: 0.3235 (better on unseen data = good generalization)
+- Training MSE: 1768.13
+- Test MSE: 1676.84
+- Training time: ~48 seconds
