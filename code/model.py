@@ -13,9 +13,9 @@ def build_model():
         model: Compiled Keras model ready for incremental training
     """
     model = keras.Sequential([
+        keras.layers.Input(shape=(INPUT_FEATURES,)),
         keras.layers.Dense(HIDDEN_LAYER_1, 
-                          activation='sigmoid', 
-                          input_shape=(INPUT_FEATURES,)),
+                          activation='sigmoid'),
         keras.layers.Dense(HIDDEN_LAYER_2, 
                           activation='sigmoid'),
         keras.layers.Dense(HIDDEN_LAYER_3, 
