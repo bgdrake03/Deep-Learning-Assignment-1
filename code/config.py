@@ -31,3 +31,11 @@ RESULTS_DIR = os.path.join(PROJECT_DIR, 'results')
 os.makedirs(RESULTS_DIR, exist_ok=True)
 MODEL_SAVE_PATH = os.path.join(RESULTS_DIR, 'trained_model.h5')
 METRICS_SAVE_PATH = os.path.join(RESULTS_DIR, 'metrics.csv')
+MEMORY_LOG_PATH = os.path.join(RESULTS_DIR, 'memory_log.csv')
+BATCH_METRICS_PATH = os.path.join(RESULTS_DIR, 'batch_metrics.csv')
+
+# Memory tracking
+MEMORY_LOG_INTERVAL = 1  # Record RAM every N batches (1 = every batch)
+
+# Learning curve
+MOVING_AVG_WINDOW = 100  # Window for smoothing per-batch MSE
