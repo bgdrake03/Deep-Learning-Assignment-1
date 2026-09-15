@@ -223,9 +223,10 @@ Configuration stored in `pyproject.toml`
 
 ## Documentation
 
-For detailed information, see:
-- **MODEL_DOCUMENTATION.md** - Complete model guide, architecture details, how to use the model
-- **network-architecture.md** - Architecture specifications and performance metrics
+For detailed information, see (all located in `rebecca/` directory):
+- **MODEL_DOCUMENTATION.md** - Comprehensive 9.8 KB guide with model overview, architecture, training details, and usage instructions
+- **network-architecture.md** - Markdown-formatted architecture specifications with layer details, parameters, training configuration, and performance metrics
+- **network-architecture** - Original architecture notes file
 
 ## Project Structure
 
