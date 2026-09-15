@@ -8,27 +8,40 @@ Build a feed-forward neural network that predicts product quantity sold using in
 
 Model implementation is complete and has been trained and tested. All core components are functional. Performance results and metrics are logged with timestamps for each training run. See performance results below for latest run data.
 
-## Files
+## Repository Contents
 
-### Code
-- `code/config.py` - Configuration (paths, hyperparameters, architecture settings)
-- `code/model.py` - Neural network definition and compilation
-- `code/data_handler.py` - Data loading, splitting, scaling, and mini-batch generation
-- `code/evaluate.py` - Metrics calculation (R², MSE, moving average)
-- `code/main.py` - Main training loop for incremental learning
-- `code/test_integration.py` - Integration test on small data sample
+### Code (`code/` directory)
+- `code/config.py` - Configuration settings (paths, hyperparameters, architecture, batch size, learning rate)
+- `code/model.py` - Neural network definition and compilation using Keras Sequential API
+- `code/data_handler.py` - Data loading, train/test splitting, feature scaling with StandardScaler, and mini-batch generation
+- `code/evaluate.py` - Metrics calculation functions (R², MSE, moving average for learning curves)
+- `code/main.py` - Main training script with incremental learning loop and result logging with timestamps
+- `code/test_integration.py` - Integration test script for verifying all components work together on small dataset
+- `code/utils.py` - Utility functions placeholder
 
-### Documentation
-- `rebecca/MODEL_DOCUMENTATION.md` - Comprehensive model guide and usage instructions
-- `rebecca/network-architecture.md` - Detailed architecture specifications and rationale
+### Documentation (`rebecca/` directory)
+- `rebecca/MODEL_DOCUMENTATION.md` - Comprehensive 9.8 KB guide including model architecture, training details, usage instructions, and performance analysis
+- `rebecca/network-architecture.md` - Markdown-formatted architecture specifications with layer details, parameters, training configuration, and performance metrics
+- `rebecca/network-architecture` - Original architecture notes file
 
-### Data
-- `data/pricing.csv` - 500,000 product records (6 features)
-- `data/data_dictionary.csv` - Feature descriptions
+### Data (`data/` directory)
+- `data/pricing.csv` - Main dataset with 500,000 product records and 6 features (sku, price, quantity, order, duration, category)
+- `data/data_dictionary.csv` - Data dictionary describing all features
 
-### Results
-- `results/trained_model.h5` - Trained neural network weights
-- `results/metrics.csv` - Performance metrics
+### Results (`results/` directory - created during training)
+- `results/trained_model.h5` - Trained neural network weights saved in HDF5 format
+- `results/metrics.csv` - Performance metrics from training runs, timestamped for tracking progress across multiple runs
+
+### Project Files
+- `README.md` - This file, comprehensive project documentation
+- `pyproject.toml` - Python project configuration with dependencies (tensorflow, numpy, pandas, scikit-learn)
+- `LICENSE` - Project license file
+- `.gitignore` - Git ignore patterns
+- `.python-version` - Python version specification
+
+### Supporting Materials (`given-materials/` directory)
+- `given-materials/Group_Assignment_1.pdf` - Assignment specification
+- `given-materials/Groups_from_Zaretzki.xlsx` - Reference groups data
 
 ## How to Run
 
@@ -55,13 +68,30 @@ Expected output:
 
 ## Data
 
-- **Dataset:** `data/pricing.csv`
-- **Total samples:** 500,000
-- **Train/test split:** 80/20 (400k train, 100k test)
-- **Features:** 5 numeric (sku, price, order, duration, category)
-- **Target:** quantity (continuous)
-- **Preprocessing:** StandardScaler normalization
-- **Batch size:** 32 (configurable in config.py)
+**Dataset Files:**
+- `data/pricing.csv` - Main dataset containing 500,000 product records
+- `data/data_dictionary.csv` - Data dictionary with feature descriptions
+
+**Dataset Specifications:**
+- **Total samples:** 500,000 records
+- **Train/test split:** 80/20 (400,000 training, 100,000 test)
+- **Features:** 5 numeric columns
+  - `sku` - Product identifier
+  - `price` - Product price
+  - `order` - Order sequence number
+  - `duration` - Time period
+  - `category` - Product category
+- **Target:** `quantity` (continuous numeric value)
+- **Preprocessing:** StandardScaler normalization (mean=0, std=1)
+- **Batch size:** 32 samples per batch (configurable in `code/config.py`)
+
+## Assignment Materials
+
+Reference materials provided with the assignment:
+- `given-materials/Group_Assignment_1.pdf` - Official assignment specification and requirements
+- `given-materials/Groups_from_Zaretzki.xlsx` - Reference group assignments data
+
+These files provide the original assignment context and specifications.
 
 ## Model Architecture
 
@@ -164,17 +194,32 @@ python code/test_integration.py
 
 ## Dependencies
 
-```
-tensorflow>=2.13.0
-numpy>=1.24.0
-pandas>=2.0.0
-scikit-learn>=1.3.0
+**Python Version:** 3.9 or higher
+
+**Required Packages:**
+- `tensorflow>=2.13.0` - Deep learning framework and Keras API
+- `numpy>=1.24.0` - Numerical computing library
+- `pandas>=2.0.0` - Data manipulation and analysis
+- `scikit-learn>=1.3.0` - Machine learning utilities (preprocessing, metrics)
+
+**Installation:**
+
+Option 1: Using pyproject.toml (recommended)
+```bash
+pip install -e .
 ```
 
-Install with:
+Option 2: Direct package installation
+```bash
+pip install tensorflow>=2.13.0 numpy>=1.24.0 pandas>=2.0.0 scikit-learn>=1.3.0
+```
+
+Option 3: Using requirements.txt (if available)
 ```bash
 pip install -r requirements.txt
 ```
+
+Configuration stored in `pyproject.toml`
 
 ## Documentation
 
@@ -185,24 +230,33 @@ For detailed information, see:
 ## Project Structure
 
 ```
-.
-├── code/
-│   ├── config.py              # Configuration
-│   ├── model.py               # Model definition
-│   ├── data_handler.py        # Data processing
-│   ├── evaluate.py            # Metrics
-│   ├── main.py                # Training script
-│   └── test_integration.py    # Integration test
-├── data/
-│   ├── pricing.csv            # Dataset
-│   └── data_dictionary.csv    # Feature info
-├── results/
-│   ├── trained_model.h5       # Trained weights
-│   └── metrics.csv            # Performance metrics
-├── rebecca/
-│   ├── MODEL_DOCUMENTATION.md # Complete guide
-│   └── network-architecture.md # Architecture details
-└── README.md                  # This file
+Deep-Learning-Assignment-1/
+├── code/                      # Python source code
+│   ├── config.py              # Configuration (paths, hyperparameters)
+│   ├── model.py               # Neural network definition
+│   ├── data_handler.py        # Data loading, splitting, scaling, batching
+│   ├── evaluate.py            # Metrics calculation (R², MSE, etc.)
+│   ├── main.py                # Main training script with timestamp logging
+│   ├── test_integration.py    # Integration test on small sample
+│   └── utils.py               # Utility functions
+├── data/                      # Dataset files
+│   ├── pricing.csv            # 500k product records (main dataset)
+│   └── data_dictionary.csv    # Feature descriptions
+├── results/                   # Training outputs (created during training)
+│   ├── trained_model.h5       # Trained neural network weights
+│   └── metrics.csv            # Timestamped performance metrics
+├── rebecca/                   # Project documentation
+│   ├── MODEL_DOCUMENTATION.md # Comprehensive model guide (9.8 KB)
+│   ├── network-architecture.md # Architecture specifications (markdown)
+│   └── network-architecture   # Original architecture notes
+├── given-materials/           # Assignment reference materials
+│   ├── Group_Assignment_1.pdf # Assignment specification
+│   └── Groups_from_Zaretzki.xlsx # Reference data
+├── README.md                  # This file
+├── pyproject.toml             # Python project configuration
+├── LICENSE                    # Project license
+├── .gitignore                 # Git ignore patterns
+└── .python-version            # Python version specification
 ```
 
 ## Key Learnings
