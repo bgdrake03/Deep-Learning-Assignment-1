@@ -7,14 +7,18 @@ from evaluate import calculate_r2, calculate_mse, calculate_moving_average
 from config import *
 import pandas as pd
 import time
+from datetime import datetime
 
 def train_incremental():
     """
     Main training loop for incremental learning.
     Reads data in mini-batches and updates model on each batch.
     """
+    run_timestamp = datetime.now()
+
     print("="*60)
     print("STARTING INCREMENTAL LEARNING TRAINING")
+    print(f"Run Date/Time: {run_timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
     
     # Load data
@@ -36,10 +40,10 @@ def train_incremental():
     batch_count = 0
     
     for X_batch, y_batch in create_mini_batches(X_train, y_train):
-        # Train on this batch
-        loss = model.train_on_batch(X_batch, y_batch)
+        metrics = model.train_on_batch(X_batch, y_batch)
+        loss = metrics[0] if isinstance(metrics, list) else metrics
         mse_history.append(loss)
-        
+
         batch_count += 1
         if batch_count % 100 == 0:
             print(f"   Processed {batch_count} batches...")
@@ -65,10 +69,18 @@ def train_incremental():
     # Save results
     print("\n5. Saving results...")
     model.save(MODEL_SAVE_PATH)
-    
+
     results = {
-        'metric': ['R2_train', 'R2_test', 'MSE_train', 'MSE_test', 'training_time'],
-        'value': [r2_train, r2_test, mse_train, mse_test, training_time]
+        'metric': ['run_date', 'run_time', 'R2_train', 'R2_test', 'MSE_train', 'MSE_test', 'training_time'],
+        'value': [
+            run_timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            run_timestamp.isoformat(),
+            r2_train,
+            r2_test,
+            mse_train,
+            mse_test,
+            training_time
+        ]
     }
     results_df = pd.DataFrame(results)
     results_df.to_csv(METRICS_SAVE_PATH, index=False)

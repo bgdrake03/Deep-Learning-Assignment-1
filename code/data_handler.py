@@ -8,25 +8,34 @@ from config import *
 
 def load_and_split_data():
     """
-    Load CSV file and split into train/test sets.
-    
+    Load CSV file, split into train/test sets, and scale features.
+
     Returns:
-        X_train, X_test, y_train, y_test: Split data
+        X_train, X_test, y_train, y_test: Split and scaled data
     """
     # Load data
     df = pd.read_csv(DATA_FILE)
-    
+
     # Separate features and target
     X = df.drop('quantity', axis=1)  # All columns except quantity
     y = df['quantity']  # Target column
-    
+
     # Split into train/test
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, 
-        test_size=TEST_SPLIT, 
+        X, y,
+        test_size=TEST_SPLIT,
         random_state=RANDOM_SEED
     )
-    
+
+    # Scale features (fit on training data only)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
+
+    # Convert back to DataFrames to maintain consistency
+    X_train = pd.DataFrame(X_train, columns=X.columns)
+    X_test = pd.DataFrame(X_test, columns=X.columns)
+
     return X_train, X_test, y_train, y_test
 
 def create_mini_batches(X, y, batch_size=BATCH_SIZE):
