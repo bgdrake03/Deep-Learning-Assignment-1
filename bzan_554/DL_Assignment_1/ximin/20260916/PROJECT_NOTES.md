@@ -116,7 +116,7 @@ splits natively.
 
 ---
 
-### D-05 · Why `EPOCHS = 1` / single pass? — **INHERITED, and partly dead code**
+### D-05 · Why `EPOCHS = 1` / single pass? — **INHERITED**
 
 `config.py` sets `EPOCHS = 1`, commented *"For incremental learning, typically 1 pass through data."*
 
@@ -139,7 +139,7 @@ from 5–10 epochs, independent of the activation fix.
 
 ---
 
-### D-06 · Why raw `quantity` as the target? — **QUESTIONABLE**
+### D-06 · Why raw `quantity` as the target? — **INHERITED**
 
 `quantity` is right-skewed count data:
 
