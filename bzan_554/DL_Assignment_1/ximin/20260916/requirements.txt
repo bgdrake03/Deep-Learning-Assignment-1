@@ -1,0 +1,16 @@
+# Pricing quantity regression - dependencies
+# Install:  pip install -r requirements.txt
+# Verify :  python -c "import tensorflow as tf, sklearn, pandas, numpy; print(tf.__version__)"
+
+# --- Core ---
+tensorflow>=2.16.0        # model.py, main.py, test_integration.py (Keras 3 bundled)
+pandas>=2.0.0             # data_handler.py, main.py - CSV I/O, .iloc batching
+numpy>=1.24.0             # evaluate.py - np.convolve moving average
+scikit-learn>=1.3.0       # train_test_split, StandardScaler, r2_score, mean_squared_error
+
+# --- Required by pending fixes (see PROJECT_NOTES.md Part 2) ---
+joblib>=1.3.0             # I-03: persist the fitted StandardScaler
+matplotlib>=3.7.0         # I-05: plot the mse_history learning curve
+
+# --- Optional: dev / testing ---
+# pytest>=7.4.0           # I-10: convert test_integration.py to real assertions
