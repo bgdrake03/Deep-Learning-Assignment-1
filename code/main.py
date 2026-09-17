@@ -2,7 +2,8 @@
 
 import numpy as np
 from model import build_model
-from data_handler import load_and_split_data, create_mini_batches
+from data_handler import (load_and_split_data, create_mini_batches,
+                          scale_target, unscale_predictions)
 from evaluate import calculate_r2, calculate_mse, calculate_moving_average
 from utils import MemoryTracker, get_memory_mb, get_system_memory_mb
 from config import *
@@ -34,6 +35,12 @@ def train_incremental():
     X_train, X_test, y_train, y_test = load_and_split_data()
     print(f"   Training samples: {len(X_train)}")
     print(f"   Test samples: {len(X_test)}")
+    # TARGET SCALING: train on standardized y so gradients stay small enough
+    # that the sigmoid layers don't saturate. y_mean/y_std undo it later.
+    # Features were already scaled inside load_and_split_data().
+    y_train_scaled, y_mean, y_std = scale_target(y_train)
+    print(f"   Target scaled: mean {y_mean:.2f}, std {y_std:.2f} -> mean 0, std 1")
+
     tracker.log('after_data_load')
     print(f"   Memory: {get_memory_mb():.1f} MB")
     
@@ -51,7 +58,9 @@ def train_incremental():
     mse_history = []
     batch_count = 0
     
-    for X_batch, y_batch in create_mini_batches(X_train, y_train):
+    # NOTE: trains on y_train_scaled, so train_on_batch returns loss in
+    # STANDARDIZED units. Converted back to quantity units below.
+    for X_batch, y_batch in create_mini_batches(X_train, y_train_scaled):
         metrics = model.train_on_batch(X_batch, y_batch)
         loss = metrics[0] if isinstance(metrics, list) else metrics
         mse_history.append(loss)
@@ -69,6 +78,10 @@ def train_incremental():
     training_time = time.time() - start_time
     tracker.log('after_training')
 
+    # Convert per-batch loss back to real quantity units for the learning curve.
+    # MSE scales by the square of the standard deviation.
+    mse_history = [m * (y_std ** 2) for m in mse_history]
+
     train_mem = tracker.summary()
     print("")
     print(f"   Memory start: {train_mem['start_mb']:.1f} MB")
@@ -78,8 +91,10 @@ def train_incremental():
     
     # Evaluation
     print("\n4. Evaluating model...")
-    y_train_pred = model.predict(X_train.values, verbose=0)
-    y_test_pred = model.predict(X_test.values, verbose=0)
+    # Model outputs standardized units -- undo the scaling BEFORE scoring,
+    # otherwise R2/MSE compare standardized predictions to raw actuals.
+    y_train_pred = unscale_predictions(model.predict(X_train.values, verbose=0), y_mean, y_std)
+    y_test_pred = unscale_predictions(model.predict(X_test.values, verbose=0), y_mean, y_std)
     
     r2_train = calculate_r2(y_train, y_train_pred)
     r2_test = calculate_r2(y_test, y_test_pred)

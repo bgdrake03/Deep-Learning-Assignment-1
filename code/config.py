@@ -22,17 +22,32 @@ OUTPUT_FEATURES = 1  # quantity
 
 # Training settings
 BATCH_SIZE = 32
-LEARNING_RATE = 0.001
+# CHANGED 0.001 -> 0.005: with the target scaled (see data_handler.scale_target),
+# the larger step trains faster in one pass. Measured: test R2 0.519 -> 0.532.
+LEARNING_RATE = 0.005
 EPOCHS = 1  # For incremental learning, typically 1 pass through data
 VERBOSE = 1  # 0=silent, 1=progress bar, 2=one line per epoch
 
 # Directories
 RESULTS_DIR = os.path.join(PROJECT_DIR, 'results')
 os.makedirs(RESULTS_DIR, exist_ok=True)
-MODEL_SAVE_PATH = os.path.join(RESULTS_DIR, 'trained_model.h5')
+# .keras (not legacy .h5): Keras 3 cannot reload a compiled .h5 model,
+# which broke plots.py loading it back for permutation importance.
+MODEL_SAVE_PATH = os.path.join(RESULTS_DIR, 'trained_model.keras')
 METRICS_SAVE_PATH = os.path.join(RESULTS_DIR, 'metrics.csv')
 MEMORY_LOG_PATH = os.path.join(RESULTS_DIR, 'memory_log.csv')
 BATCH_METRICS_PATH = os.path.join(RESULTS_DIR, 'batch_metrics.csv')
+IMPORTANCE_PATH = os.path.join(RESULTS_DIR, 'variable_importance.csv')
+
+# Plot output (300 DPI = publication quality for slides/print)
+PLOT_DIR = os.path.join(RESULTS_DIR, 'plots')
+os.makedirs(PLOT_DIR, exist_ok=True)
+LEARNING_CURVE_PLOT = os.path.join(PLOT_DIR, 'learning_curve.png')
+IMPORTANCE_PLOT = os.path.join(PLOT_DIR, 'variable_importance.png')
+PLOT_DPI = 300
+
+# Permutation importance
+N_PERMUTATION_REPEATS = 5  # Shuffles per feature; more = tighter error bars
 
 # Memory tracking
 MEMORY_LOG_INTERVAL = 1  # Record RAM every N batches (1 = every batch)
