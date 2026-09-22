@@ -1,37 +1,28 @@
-# Neural network definition
+"""The network: five inputs, three sigmoid hidden layers, one linear output.
+
+The same shape we built by hand in assignment 2, written in Keras as in
+assignment 4. Each Dense layer computes  activation(inputs @ W + b).
+
+The output layer is LINEAR, not sigmoid: quantity runs from 1 to 4165, and a
+sigmoid can only ever produce values between 0 and 1.
+"""
 
 import tensorflow as tf
-from tensorflow import keras
 from config import *
 
+
 def build_model():
-    """
-    Build a sequential neural network with 3 hidden layers (sigmoid activation)
-    and incremental learning capability.
-    
-    Returns:
-        model: Compiled Keras model ready for incremental training
-    """
-    model = keras.Sequential([
-        keras.layers.Input(shape=(INPUT_FEATURES,)),
-        keras.layers.Dense(HIDDEN_LAYER_1, 
-                          activation='sigmoid'),
-        keras.layers.Dense(HIDDEN_LAYER_2, 
-                          activation='sigmoid'),
-        keras.layers.Dense(HIDDEN_LAYER_3, 
-                          activation='sigmoid'),
-        keras.layers.Dense(OUTPUT_FEATURES)  # Linear activation for regression
-    ])
-    
-    # Compile for incremental training
-    model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-        loss='mse',  # Mean squared error for regression
-        metrics=['mae']  # Mean absolute error for monitoring
-    )
-    
+    layers = [tf.keras.layers.Input(shape=(len(FEATURES),), name='input')]
+    for i, units in enumerate(HIDDEN_LAYERS, start=1):
+        layers.append(tf.keras.layers.Dense(units, activation='sigmoid',
+                                            name=f'hidden{i}'))
+    layers.append(tf.keras.layers.Dense(1, activation='linear', name='output'))
+
+    model = tf.keras.Sequential(layers)
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+                  loss='mse')
     return model
 
-if __name__ == "__main__":
-    model = build_model()
-    model.summary()  # Print architecture summary
+
+if __name__ == '__main__':
+    build_model().summary()

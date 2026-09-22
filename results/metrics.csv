@@ -1,17 +1,19 @@
 metric,value
-run_date,2026-09-17 14:44:55
-run_time,2026-09-17T14:44:55.750258
-R2_train,0.5362404916225145
-R2_test,0.5355801212300386
-MSE_train,1191.2639051950591
-MSE_test,1151.1984482363823
-training_time,44.95893692970276
-memory_start_mb,346.35546875
-memory_peak_mb,553.390625
-memory_end_mb,553.390625
-memory_growth_mb,207.03515625
-memory_peak_training_mb,423.74609375
-memory_growth_training_mb,77.390625
-MSE_first_batch,455.52484949140364
-MSE_last_batch,1746.998199457221
+run_datetime,2026-09-22 13:37:59
+n_train_rows,399999
+n_test_rows,100001
+R2_train,0.5225819239345573
+R2_test,0.5276784052985187
+MSE_train,1114.9174463711252
+MSE_test,1131.6448091260852
+training_time_sec,31.430607318878174
+records_per_sec,12726.44832922932
 n_batches,12500
+MSE_smoothed_start,2831.016353304977
+MSE_smoothed_end,989.3935980286667
+ram_before_training_mb,353.515625
+ram_after_training_mb,401.95703125
+ram_growth_during_training_mb,48.44140625
+ram_peak_mb,404.625
+machine_ram_mb,14170.55859375
+data_file_mb,18.164283752441406
