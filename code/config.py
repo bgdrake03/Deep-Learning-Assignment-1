@@ -1,56 +1,67 @@
-# Settings (batch size, learning rate, etc)
-
-# Configuration settings for the entire project
+"""Every setting for the project lives here. Change things here, not elsewhere."""
 
 import os
 
-# Get the directory where this config file is located (code/)
-CONFIG_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.dirname(CONFIG_DIR)  # Parent directory (repo root)
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Data settings
+# ---------------------------------------------------------------- data
 DATA_FILE = os.path.join(PROJECT_DIR, 'data', 'pricing.csv')
-TEST_SPLIT = 0.2  # 80/20 train/test split
+FEATURES = ['sku', 'price', 'order', 'duration', 'category']
+TARGET = 'quantity'
+
+# Rows pulled off disk at a time. This is what keeps the job inside RAM:
+# we never hold more than one chunk of the file at once.
+CHUNK_SIZE = 50_000
+
+TEST_SPLIT = 0.2
 RANDOM_SEED = 42
 
-# Model architecture
-INPUT_FEATURES = 5  # sku, price, order, duration, category
-HIDDEN_LAYER_1 = 64
-HIDDEN_LAYER_2 = 32
-HIDDEN_LAYER_3 = 16
-OUTPUT_FEATURES = 1  # quantity
+# pricing.csv is SORTED BY sku. Fed to the model in file order, every
+# mini-batch would contain nearly identical rows, which breaks stochastic
+# gradient descent - it assumes each batch is a fair sample of the data.
+# So we hold this many rows in a buffer, shuffle it, and draw batches from
+# there. The buffer is a FIXED number of rows, so it stays the same size no
+# matter how large the file gets. At 200,000 rows it costs about 5 MB.
+#
+# Measured on this data:
+#     shuffle buffer   test R2
+#   none (file order)   0.4445
+#              50,000   0.4478
+#             100,000   0.5000
+#             200,000   0.5312   <- chosen
+#             400,000   0.5406   (a full shuffle of this file, for reference)
+SHUFFLE_BUFFER = 200_000
 
-# Training settings
-BATCH_SIZE = 32
-# CHANGED 0.001 -> 0.005: with the target scaled (see data_handler.scale_target),
-# the larger step trains faster in one pass. Measured: test R2 0.519 -> 0.532.
+# How many held-out rows we keep in memory for scoring. Scoring, permutation
+# importance and partial dependence all need data in RAM; capping the sample
+# means that cost is FIXED and does not grow with the size of the file.
+SAMPLE_SIZE = 50_000
+
+# ---------------------------------------------------------------- model
+HIDDEN_LAYERS = [64, 32, 16]   # three hidden layers, as the assignment requires
 LEARNING_RATE = 0.005
-EPOCHS = 1  # For incremental learning, typically 1 pass through data
-VERBOSE = 1  # 0=silent, 1=progress bar, 2=one line per epoch
+BATCH_SIZE = 32
 
-# Directories
+# ---------------------------------------------------------------- evaluation
+N_PERMUTATION_REPEATS = 5   # shuffles per feature; averaged, std = error bars
+PDP_GRID_POINTS = 40        # points along each partial dependence curve
+PDP_SAMPLE_SIZE = 5_000     # rows used per partial dependence curve
+MOVING_AVG_WINDOW = 100     # batches, for smoothing the learning curve
+
+# ---------------------------------------------------------------- output
 RESULTS_DIR = os.path.join(PROJECT_DIR, 'results')
-os.makedirs(RESULTS_DIR, exist_ok=True)
-# .keras (not legacy .h5): Keras 3 cannot reload a compiled .h5 model,
-# which broke plots.py loading it back for permutation importance.
-MODEL_SAVE_PATH = os.path.join(RESULTS_DIR, 'trained_model.keras')
-METRICS_SAVE_PATH = os.path.join(RESULTS_DIR, 'metrics.csv')
-MEMORY_LOG_PATH = os.path.join(RESULTS_DIR, 'memory_log.csv')
-BATCH_METRICS_PATH = os.path.join(RESULTS_DIR, 'batch_metrics.csv')
-IMPORTANCE_PATH = os.path.join(RESULTS_DIR, 'variable_importance.csv')
-
-# Plot output (300 DPI = publication quality for slides/print)
 PLOT_DIR = os.path.join(RESULTS_DIR, 'plots')
 os.makedirs(PLOT_DIR, exist_ok=True)
+
+MODEL_PATH         = os.path.join(RESULTS_DIR, 'trained_model.keras')
+METRICS_PATH       = os.path.join(RESULTS_DIR, 'metrics.csv')
+BATCH_METRICS_PATH = os.path.join(RESULTS_DIR, 'batch_metrics.csv')
+IMPORTANCE_PATH    = os.path.join(RESULTS_DIR, 'variable_importance.csv')
+PDP_PATH           = os.path.join(RESULTS_DIR, 'partial_dependence.csv')
+MEMORY_LOG_PATH    = os.path.join(RESULTS_DIR, 'memory_log.csv')
+
 LEARNING_CURVE_PLOT = os.path.join(PLOT_DIR, 'learning_curve.png')
-IMPORTANCE_PLOT = os.path.join(PLOT_DIR, 'variable_importance.png')
-PLOT_DPI = 300
-
-# Permutation importance
-N_PERMUTATION_REPEATS = 5  # Shuffles per feature; more = tighter error bars
-
-# Memory tracking
-MEMORY_LOG_INTERVAL = 1  # Record RAM every N batches (1 = every batch)
-
-# Learning curve
-MOVING_AVG_WINDOW = 100  # Window for smoothing per-batch MSE
+IMPORTANCE_PLOT     = os.path.join(PLOT_DIR, 'variable_importance.png')
+PDP_PLOT            = os.path.join(PLOT_DIR, 'partial_dependence.png')
+MEMORY_PLOT         = os.path.join(PLOT_DIR, 'memory_usage.png')
+PLOT_DPI = 200

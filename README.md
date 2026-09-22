@@ -1,288 +1,157 @@
-# BZAN 554 - Group Assignment 1: Incremental Learning
+# Group Assignment 1 — Incremental Learning on Large Data
 
-## Project Overview
+A feed-forward neural network that predicts `quantity` sold, trained **one
+mini-batch at a time straight off disk**, so the data is never held in RAM.
 
-Build a feed-forward neural network that predicts product quantity sold using incremental learning on large datasets. The model trains on 400,000 samples in approximately 48 seconds and achieves an R² score of 0.3235 on test data.
-
-## Status: In Development
-
-Model implementation is complete and has been trained and tested. All core components are functional. Performance results and metrics are logged with timestamps for each training run. See performance results below for latest run data.
-
-## Repository Contents
-
-### Code (`code/` directory)
-- `code/config.py` - Configuration settings (paths, hyperparameters, architecture, batch size, learning rate)
-- `code/model.py` - Neural network definition and compilation using Keras Sequential API
-- `code/data_handler.py` - Data loading, train/test splitting, feature scaling with StandardScaler, and mini-batch generation
-- `code/evaluate.py` - Metrics calculation functions (R², MSE, moving average for learning curves)
-- `code/main.py` - Main training script with incremental learning loop and result logging with timestamps
-- `code/test_integration.py` - Integration test script for verifying all components work together on small dataset
-- `code/utils.py` - Utility functions placeholder
-
-### Documentation (`rebecca/` directory)
-- `rebecca/model-documentation.md` - Comprehensive model guide including model architecture, training details, usage instructions, and performance analysis
-- `rebecca/network-architecture.md` - Markdown-formatted architecture specifications with layer details, parameters, training configuration, and performance metrics
-
-### Data (`data/` directory)
-- `data/pricing.csv` - Main dataset with 500,000 product records and 6 features (sku, price, quantity, order, duration, category)
-- `data/data_dictionary.csv` - Data dictionary describing all features
-
-### Results (`results/` directory - created during training)
-- `results/trained_model.h5` - Trained neural network weights saved in HDF5 format
-- `results/metrics.csv` - Performance metrics from training runs, timestamped for tracking progress across multiple runs
-
-### Project Files
-- `README.md` - This file, comprehensive project documentation
-- `pyproject.toml` - Python project configuration with dependencies (tensorflow, numpy, pandas, scikit-learn)
-- `LICENSE` - Project license file
-- `.gitignore` - Git ignore patterns
-- `.python-version` - Python version specification
-
-### Supporting Materials (`given-materials/` directory)
-- `given-materials/Group_Assignment_1.pdf` - Assignment specification
-- `given-materials/Groups_from_Zaretzki.xlsx` - Reference groups data
-
-## How to Run
-
-### Full Training on All Data
 ```bash
-python code/main.py
+uv run python code/main.py
 ```
 
-Expected output:
-- Processes 400,000 training samples in ~12,500 batches
-- Trains in approximately 48 seconds
-- Saves model to `results/trained_model.h5`
-- Saves metrics to `results/metrics.csv`
+One command runs everything and writes every deliverable into `results/`.
+Takes about 40 seconds.
 
-### Quick Integration Test
-```bash
-python code/test_integration.py
-```
+---
 
-Expected output:
-- Tests on 1,000 samples
-- Completes in ~3 seconds
-- Verifies all pipeline components work together
+## The code, in the order the course covered it
 
-## Data
+| File | What it does | Where we learned it |
+|---|---|---|
+| `config.py` | every setting in one place | — |
+| `data.py` | reads the CSV in chunks, scales it, shuffles it through a bounded buffer | assignment 0 — learning from a stream |
+| `model.py` | 5 inputs → three sigmoid hidden layers → linear output | assignment 2 (by hand), assignment 4 (in Keras) |
+| `metrics.py` | R², MSE, moving average, permutation importance, partial dependence | assignment 4 (losses), assignment 1 (interpretation) |
+| `plots.py` | the four figures | — |
+| `main.py` | runs steps 1–8 in order | — |
 
-**Dataset Files:**
-- `data/pricing.csv` - Main dataset containing 500,000 product records
-- `data/data_dictionary.csv` - Data dictionary with feature descriptions
+`metrics.py` knows nothing about TensorFlow — every function that needs
+predictions takes a `predict` function as an argument, so the same code would
+work on any model.
 
-**Dataset Specifications:**
-- **Total samples:** 500,000 records
-- **Train/test split:** 80/20 (400,000 training, 100,000 test)
-- **Features:** 5 numeric columns
-  - `sku` - Product identifier
-  - `price` - Product price
-  - `order` - Order sequence number
-  - `duration` - Time period
-  - `category` - Product category
-- **Target:** `quantity` (continuous numeric value)
-- **Preprocessing:** StandardScaler normalization (mean=0, std=1)
-- **Batch size:** 32 samples per batch (configurable in `code/config.py`)
+---
 
-## Assignment Materials
+## How the data never lands in RAM
 
-Reference materials provided with the assignment:
-- `given-materials/Group_Assignment_1.pdf` - Official assignment specification and requirements
-- `given-materials/Groups_from_Zaretzki.xlsx` - Reference group assignments data
+`pricing.csv` is 18 MB, which fits easily — but the assignment is about the
+*technique*, so nothing here assumes it fits. Three passes over the file, each
+holding only a bounded amount:
 
-These files provide the original assignment context and specifications.
+**Pass 1 — `compute_statistics()`**
+Standardising needs the mean and standard deviation of the training set, which
+you cannot know without seeing every row. So we accumulate three running
+totals — count, sum, sum of squares — and derive the statistics at the end.
+Only a handful of numbers are kept.
 
-## Model Architecture
+**Pass 2 — `stream_train_batches()`**
+Reads `CHUNK_SIZE` rows, scales them, and yields mini-batches to the model.
 
-### Network Structure
-```
-Input (5 features)
-  ↓
-Dense Layer 1: 64 neurons, sigmoid activation (384 parameters)
-  ↓
-Dense Layer 2: 32 neurons, sigmoid activation (2,080 parameters)
-  ↓
-Dense Layer 3: 16 neurons, sigmoid activation (528 parameters)
-  ↓
-Output: 1 neuron, linear activation (17 parameters)
+**Pass 3 — `load_sample()`**
+Keeps a capped random sample in memory for scoring, importance and partial
+dependence. Capped, so this cost is fixed rather than growing with the file.
 
-Total Parameters: 3,009 (11.75 KB)
-```
+### The train/test split without shuffling the file
 
-### Training Configuration
-- **Optimizer:** Adam (learning_rate=0.001)
-- **Loss function:** Mean Squared Error (MSE)
-- **Metric:** Mean Absolute Error (MAE)
-- **Training method:** Incremental (batch-by-batch)
-- **Batch size:** 32
-- **Epochs:** 1 (full pass through data)
+`_is_test()` hashes the row number instead of drawing at random. The same row
+therefore lands in the same set on every pass and every run — which lets us
+split the data without ever holding it or reordering it on disk.
 
-### Architecture Rationale
-1. Sigmoid activation: Non-linear, learns complex patterns
-2. Decreasing layer sizes: Progressively compresses information, reduces overfitting
-3. Linear output: Appropriate for regression (continuous quantity prediction)
-4. Small architecture: Prevents overfitting on large dataset, efficient memory usage
-5. Incremental training: Enables processing arbitrarily large datasets
+### The shuffle buffer, and why it matters
 
-## Performance Results
+`pricing.csv` is **sorted by `sku`** (correlation 0.9995 with row number). Fed
+to the model in file order, every mini-batch would contain nearly identical
+rows — and stochastic gradient descent assumes each batch is a fair sample.
 
-Each training run generates timestamped results saved to `results/metrics.csv` with the exact date and time of the run.
+We cannot shuffle a file we cannot hold, so `data.py` fills a fixed-size
+buffer, shuffles that, and empties it before filling the next one.
 
-### Latest Run Example (500k dataset)
-| Metric | Training | Test |
-|--------|----------|------|
-| **R² Score** | 0.3117 | **0.3235** |
-| **MSE** | 1768.13 | 1676.84 |
-| **RMSE** | 42.05 | 40.95 |
-| **Training Time** | ~48 seconds | - |
+| shuffle buffer | test R² |
+|---|---|
+| none (file order) | 0.4445 |
+| 50,000 | 0.4478 |
+| 100,000 | 0.5000 |
+| **200,000 (chosen)** | **0.5312** |
+| 400,000 | 0.5406 — a full shuffle of this file, for reference |
 
-**Note:** Check `results/metrics.csv` for timestamped results from all training runs.
+200,000 rows costs about 5 MB and recovers essentially all the accuracy. It is
+a *fixed* number of rows, so it would stay 5 MB on a file a hundred times
+larger.
 
-### Model Performance Analysis
-- Test R² > Training R²: Excellent generalization (no overfitting)
-- Model explains ~32% of quantity variance
-- Test MSE < Training MSE: Further confirms good performance on unseen data
-- Efficient training: 500k samples in under 1 minute
+---
 
-## Implementation Details
+## Two other decisions worth knowing
 
-### Key Features
-- Feature scaling with StandardScaler (prevents feature dominance)
-- Incremental learning with mini-batches (handles large datasets)
-- Cross-platform path handling (works on Windows, Mac, Linux)
-- Comprehensive error checking and auto-directory creation
-- Integration test for component verification
+**The target is standardised.** Raw `quantity` has mean 23 and reaches 4165.
+Asking sigmoid layers to produce numbers that large saturates them and stalls
+learning. `unscale()` converts predictions back before anything is scored.
 
-### What Was Done (Day 1)
-1. Fixed code skeleton issues:
-   - Fixed import paths (data-handler.py → data_handler.py)
-   - Implemented cross-platform path handling
-   - Added all dependencies to pyproject.toml
-   - Auto-create results directory
+**The output layer is linear, not sigmoid.** Sigmoid can only produce values
+between 0 and 1; `quantity` runs to 4165.
 
-2. Implemented missing components:
-   - Added feature scaling (StandardScaler)
-   - Fixed loss extraction from Keras metrics
-   - Created integration test script
+---
 
-3. Ran full training:
-   - Trained on all 400,000 samples
-   - Verified incremental learning works
-   - Saved model and metrics
-   - Achieved R² of 0.3235 on test data
+## Deliverables
 
-4. Created comprehensive documentation:
-   - MODEL_DOCUMENTATION.md (complete usage guide)
-   - Updated network-architecture.md with actual implementation details
+| Required by the PDF | Produced by |
+|---|---|
+| R² on train and test | `results/metrics.csv` |
+| Learning curve (records seen vs moving-average MSE) | `results/plots/learning_curve.png` |
+| Variable importance | `results/plots/variable_importance.png` |
+| Multiple partial dependence plots | `results/plots/partial_dependence.png` |
+| RAM usage | `results/plots/memory_usage.png`, `results/memory_log.csv` |
+| Training time | `results/metrics.csv` |
+| Who did what | the presentation |
 
-## Testing
+---
 
-### Integration Test
-The `test_integration.py` script verifies:
-- Data loading and preprocessing
-- Mini-batch generation
-- Incremental training with train_on_batch
-- R² and MSE calculation
-- Moving average for learning curves
-- Model evaluation on train and test sets
-
-Run with:
-```bash
-python code/test_integration.py
-```
-
-## Dependencies
-
-**Python Version:** 3.9 or higher
-
-**Required Packages:**
-- `tensorflow>=2.13.0` - Deep learning framework and Keras API
-- `numpy>=1.24.0` - Numerical computing library
-- `pandas>=2.0.0` - Data manipulation and analysis
-- `scikit-learn>=1.3.0` - Machine learning utilities (preprocessing, metrics)
-
-**Installation:**
-
-Option 1: Using pyproject.toml (recommended)
-```bash
-pip install -e .
-```
-
-Option 2: Direct package installation
-```bash
-pip install tensorflow>=2.13.0 numpy>=1.24.0 pandas>=2.0.0 scikit-learn>=1.3.0
-```
-
-Option 3: Using requirements.txt (if available)
-```bash
-pip install -r requirements.txt
-```
-
-Configuration stored in `pyproject.toml`
-
-## Documentation
-
-For detailed information, see (all located in `rebecca/` directory):
-- **model-documentation.md** - Comprehensive guide with model overview, architecture, training details, and usage instructions
-- **network-architecture.md** - Markdown-formatted architecture specifications with layer details, parameters, training configuration, and performance metrics
-
-## Project Structure
+## Current results
 
 ```
-Deep-Learning-Assignment-1/
-├── code/                      # Python source code
-│   ├── config.py              # Configuration (paths, hyperparameters)
-│   ├── model.py               # Neural network definition
-│   ├── data_handler.py        # Data loading, splitting, scaling, batching
-│   ├── evaluate.py            # Metrics calculation (R², MSE, etc.)
-│   ├── main.py                # Main training script with timestamp logging
-│   ├── test_integration.py    # Integration test on small sample
-│   └── utils.py               # Utility functions
-├── data/                      # Dataset files
-│   ├── pricing.csv            # 500k product records (main dataset)
-│   └── data_dictionary.csv    # Feature descriptions
-├── results/                   # Training outputs (created during training)
-│   ├── trained_model.h5       # Trained neural network weights
-│   └── metrics.csv            # Timestamped performance metrics
-├── rebecca/                   # Project documentation
-│   ├── model-documentation.md # Comprehensive model guide
-│   └── network-architecture.md # Architecture specifications (markdown)
-├── given-materials/           # Assignment reference materials
-│   ├── Group_Assignment_1.pdf # Assignment specification
-│   └── Groups_from_Zaretzki.xlsx # Reference data
-├── README.md                  # This file
-├── pyproject.toml             # Python project configuration
-├── LICENSE                    # Project license
-├── .gitignore                 # Git ignore patterns
-└── .python-version            # Python version specification
+R²   train 0.5260    test 0.5312
+MSE  train 1,107     test 1,123
+
+training time         32.5 s  (about 12,300 records/second)
+RAM growth while training   +49 MB over 400,000 records
+peak RAM                    407 MB  on a 14,171 MB machine
 ```
 
-## Key Learnings
+Permutation importance, by how far test R² falls when the feature is shuffled:
 
-1. **Incremental Learning:** Essential for large datasets, processes data in batches
-2. **Feature Scaling:** Critical for neural network convergence and performance
-3. **Generalization:** Test performance better than training indicates good model
-4. **Batch Processing:** Enables handling arbitrary dataset sizes efficiently
-5. **Architecture Design:** Simpler networks often better (prevents overfitting)
+```
+duration   0.9007      <- dominant
+price      0.3418
+category   0.0224
+order      0.0096
+sku        0.0013      <- essentially unused
+```
 
-## Next Steps / Improvements
+`MSE_smoothed_start` and `MSE_smoothed_end` in `metrics.csv` are moving
+averages, not single batches. A single batch is 32 records and far too noisy
+to quote — the first and last individual batches can easily suggest the model
+got worse when it did not.
 
-Potential enhancements for future work:
-- Hyperparameter tuning (different layer sizes, learning rates)
-- Multiple epochs for better convergence
-- Regularization (dropout, L2) to reduce overfitting
-- Feature engineering (create new features)
-- Ensemble methods (combine multiple models)
-- Different activations (ReLU, ELU)
-- Skip connections or other advanced architectures
+---
 
-## Status Summary
+## Questions to be ready for
 
-Status: IN DEVELOPMENT - Model has been run and tested
+The assignment says the test may ask you to reason through this code, so have
+an answer for:
 
-- Model: Fully implemented and working
-- Training: Successfully runs on full 500k dataset
-- Testing: Integration test passes, results vary per run (timestamped)
-- Documentation: Complete and detailed
-- Performance: R² = 0.3235 in latest test run (good generalization)
-- Logging: All runs timestamped in metrics.csv for tracking progress
+- **`sku` and `category` are treated as continuous numbers.** The PDF says
+  they are integer-encoded *categoricals*. Standardising 75,000 SKU codes
+  tells the network that SKU 5000 is "bigger" than SKU 2500, which is
+  meaningless. Embeddings are the proper answer. Importance shows the model
+  barely uses `sku` anyway.
+- **Adam, not plain SGD.** Know what Adam changes about
+  `w ← w − η · gradient`.
+- **Layer sizes 64 / 32 / 16.** A tapering funnel is the conventional choice;
+  we did not tune them.
+- **One pass over the data.** True incremental learning sees each record once.
+  More passes would raise R² but stop being a demonstration of streaming.
+
+---
+
+## Note
+
+`rebecca/model-documentation.md` and `rebecca/network-architecture.md` still
+describe the previous file layout (`data_handler.py`, `evaluate.py`,
+`utils.py`, `test_integration.py`). Those files no longer exist — worth
+coordinating before the presentation.
