@@ -135,7 +135,12 @@ def main():
     banner('6. PARTIAL DEPENDENCE  (assignment 1, Q2)')
     print('Forcing each feature to a range of values and averaging the'
           ' predictions.\n')
-    X_pdp = X_test[:PDP_SAMPLE_SIZE]
+    # X_test is still in file order, and the file is sorted by sku, so its
+    # first rows are all low skus. Draw the subset at random so the curves
+    # average over the whole population, not one corner of it.
+    pick = np.random.default_rng(RANDOM_SEED).choice(
+        len(X_test), min(PDP_SAMPLE_SIZE, len(X_test)), replace=False)
+    X_pdp = X_test[pick]
     pdp_rows = []
 
     for col, name in enumerate(FEATURES):

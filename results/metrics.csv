@@ -1,19 +1,19 @@
 metric,value
-run_datetime,2026-09-22 13:37:59
+run_datetime,2026-09-22 14:52:08
 n_train_rows,399999
 n_test_rows,100001
-R2_train,0.5225819239345573
-R2_test,0.5276784052985187
-MSE_train,1114.9174463711252
-MSE_test,1131.6448091260852
-training_time_sec,31.430607318878174
-records_per_sec,12726.44832922932
+R2_train,0.5210448040733077
+R2_test,0.5262779235734812
+MSE_train,1118.5070920849919
+MSE_test,1135.000251460701
+training_time_sec,39.27434253692627
+records_per_sec,10184.766291731417
 n_batches,12500
-MSE_smoothed_start,2831.016353304977
-MSE_smoothed_end,989.3935980286667
-ram_before_training_mb,353.515625
-ram_after_training_mb,401.95703125
-ram_growth_during_training_mb,48.44140625
-ram_peak_mb,404.625
-machine_ram_mb,14170.55859375
+MSE_smoothed_start,2754.3699524298036
+MSE_smoothed_end,994.5880761525383
+ram_before_training_mb,392.8203125
+ram_after_training_mb,433.109375
+ram_growth_during_training_mb,40.2890625
+ram_peak_mb,434.63671875
+machine_ram_mb,16010.92578125
 data_file_mb,18.164283752441406
