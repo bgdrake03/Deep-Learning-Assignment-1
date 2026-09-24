@@ -557,11 +557,30 @@ notes(s, 'The first one is the biggest missed opportunity, though the '
 
 s = slide()
 heading(s, 'Contributions', 'who did what')
-for i, name in enumerate(['Ansley Smith', 'Rebecca Drake', 'Ximin Zeng']):
+
+members = [
+    ('Ximin Zeng', 'Slides 1–5, 19–20', [
+        'Framing the problem and the data',
+        'Why the file could not be opened',
+        'Closing and next steps',
+    ]),
+    ('Ansley Smith', 'Slides 6–12', [
+        'The streaming pipeline',
+        'The network and the key decisions',
+        'The sorted-file problem and its fix',
+    ]),
+    ('Rebecca Drake', 'Slides 13–18', [
+        'Accuracy and the learning curve',
+        'Variable importance and partial dependence',
+        'Memory and speed results',
+    ]),
+]
+
+for i, (name, slides, points) in enumerate(members):
     x = 0.65 + i * 4.15
-    card(s, x, 2.0, 3.85, 4.2)
-    circ = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x + 1.365), Inches(2.35),
-                              Inches(1.12), Inches(1.12))
+    card(s, x, 1.95, 3.85, 4.5)
+    circ = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x + 1.4), Inches(2.25),
+                              Inches(1.05), Inches(1.05))
     circ.fill.solid()
     circ.fill.fore_color.rgb = TEAL
     circ.line.color.rgb = TEAL
@@ -571,15 +590,21 @@ for i, name in enumerate(['Ansley Smith', 'Rebecca Drake', 'Ximin Zeng']):
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     f = p.runs[0].font
-    f.name, f.size, f.bold, f.color.rgb = HEAD, Pt(30), True, WHITE
-    text(s, x + 0.15, 3.68, 3.55, 0.45, name, size=20, color=DEEP, bold=True,
+    f.name, f.size, f.bold, f.color.rgb = HEAD, Pt(28), True, WHITE
+
+    text(s, x + 0.15, 3.48, 3.55, 0.42, name, size=19, color=DEEP, bold=True,
          align=PP_ALIGN.CENTER)
-    text(s, x + 0.2, 4.25, 3.45, 1.7, 'Fill in before submitting', size=15,
-         color=MUTED, italic=True, align=PP_ALIGN.CENTER, spacing=1.2)
-text(s, 0.65, 6.45, 12.0, 0.5,
-     'Replace the three placeholders with each member’s actual '
-     'contribution before submitting.', size=15, color=CORAL, bold=True)
-notes(s, 'Fill this in as a team before submitting.')
+    text(s, x + 0.15, 3.95, 3.55, 0.35, slides, size=14, color=CORAL,
+         bold=True, align=PP_ALIGN.CENTER)
+    text(s, x + 0.3, 4.55, 3.25, 1.7, points, size=14, color=INK,
+         spacing=1.15, space_after=11, bullets=True)
+
+text(s, 0.65, 6.65, 12.0, 0.45,
+     'Each of us presents the section listed, and prepared the material '
+     'behind it.', size=15, color=MUTED, italic=True)
+notes(s, 'We split the deck three ways: Ximin sets up the problem and closes, '
+         'Ansley covers how the method works, Rebecca covers what we found.')
+
 
 # ------------------------------------------------------------------ write
 
