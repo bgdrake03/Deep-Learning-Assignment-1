@@ -559,51 +559,55 @@ s = slide()
 heading(s, 'Contributions', 'who did what')
 
 members = [
-    ('Ximin Zeng', 'Slides 1–5, 19–20', [
-        'Framing the problem and the data',
-        'Why the file could not be opened',
-        'Closing and next steps',
-    ]),
-    ('Ansley Smith', 'Slides 6–12', [
-        'The streaming pipeline',
-        'The network and the key decisions',
-        'The sorted-file problem and its fix',
-    ]),
-    ('Rebecca Drake', 'Slides 13–18', [
-        'Accuracy and the learning curve',
-        'Variable importance and partial dependence',
-        'Memory and speed results',
-    ]),
+    ('Ximin Zeng', 'Slides 1–5, 19–20',
+     'Explored pricing.csv and documented what every column means, including '
+     'the sample rows on slide 3. Established the memory constraint the whole '
+     'project is built around, and produced the comparison on slide 5. Wrote '
+     'the limitations and future-work analysis.'),
+    ('Ansley Smith', 'Slides 6–12',
+     'Built the streaming pipeline in data.py — chunked reads, running '
+     'statistics, the hash-based train/test split — plus model.py and the '
+     'training loop. Diagnosed the sorted-file problem, implemented the '
+     'shuffle buffer, and ran the buffer-size sweep on slide 11.'),
+    ('Rebecca Drake', 'Slides 13–18',
+     'Wrote metrics.py — R-squared from the formula in the assignment, '
+     'MSE, permutation importance and partial dependence — and plots.py. '
+     'Added the memory instrumentation and timing, and produced all four '
+     'figures in the results section.'),
 ]
 
-for i, (name, slides, points) in enumerate(members):
-    x = 0.65 + i * 4.15
-    card(s, x, 1.95, 3.85, 4.5)
-    circ = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x + 1.4), Inches(2.25),
-                              Inches(1.05), Inches(1.05))
+for i, (name, slides, detail) in enumerate(members):
+    y = 1.8 + i * 1.7
+    card(s, 0.65, y, 12.0, 1.6)
+
+    circ = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(0.95), Inches(y + 0.36),
+                              Inches(0.88), Inches(0.88))
     circ.fill.solid()
     circ.fill.fore_color.rgb = TEAL
     circ.line.color.rgb = TEAL
     circ.shadow.inherit = False
     tf = circ.text_frame
     tf.text = ''.join(part[0] for part in name.split())
+    # without this the initials wrap onto two lines inside the circle
+    tf.word_wrap = False
+    tf.margin_left = tf.margin_right = 0
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     f = p.runs[0].font
-    f.name, f.size, f.bold, f.color.rgb = HEAD, Pt(28), True, WHITE
+    f.name, f.size, f.bold, f.color.rgb = HEAD, Pt(24), True, WHITE
 
-    text(s, x + 0.15, 3.48, 3.55, 0.42, name, size=19, color=DEEP, bold=True,
-         align=PP_ALIGN.CENTER)
-    text(s, x + 0.15, 3.95, 3.55, 0.35, slides, size=14, color=CORAL,
-         bold=True, align=PP_ALIGN.CENTER)
-    text(s, x + 0.3, 4.55, 3.25, 1.7, points, size=14, color=INK,
-         spacing=1.15, space_after=11, bullets=True)
+    text(s, 2.05, y + 0.34, 2.5, 0.4, name, size=18, color=DEEP, bold=True)
+    text(s, 2.05, y + 0.8, 2.5, 0.35, slides, size=13, color=CORAL, bold=True)
+    text(s, 4.8, y + 0.22, 7.6, 1.2, detail, size=14.5, color=INK,
+         spacing=1.18)
 
-text(s, 0.65, 6.65, 12.0, 0.45,
-     'Each of us presents the section listed, and prepared the material '
-     'behind it.', size=15, color=MUTED, italic=True)
-notes(s, 'We split the deck three ways: Ximin sets up the problem and closes, '
-         'Ansley covers how the method works, Rebecca covers what we found.')
+text(s, 0.65, 6.95, 12.0, 0.45,
+     'Each of us prepared the material for our own section and presents it.',
+     size=15, color=MUTED, italic=True)
+notes(s, 'We split the work three ways. Ximin set up the problem and the data '
+         'and wrote the closing analysis, Ansley built the streaming pipeline '
+         'and the model, Rebecca wrote the evaluation and produced the '
+         'figures.')
 
 
 # ------------------------------------------------------------------ write
