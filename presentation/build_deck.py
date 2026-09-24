@@ -295,9 +295,8 @@ s = slide()
 heading(s, 'The model is a stack of pattern-finders', 'what we built')
 picture(s, 'architecture.png', 0.55, 1.8, 12.25, 2.956, folder=FIG)
 text(s, 0.65, 6.1, 12.0, 1.0,
-     'Five facts go in. Each layer looks for patterns in what the previous '
-     'layer found. One number comes out: how many units we expect to sell.',
-     size=18, color=INK, spacing=1.2)
+     'Five facts go in, one number comes out: how many units we expect to '
+     'sell.', size=18, color=INK, spacing=1.2)
 notes(s, 'The model is small. Five inputs, then three hidden layers - '
          'sixty-four, thirty-two and sixteen units, all sigmoid, as the '
          'assignment specified. One linear output. Three thousand and nine '

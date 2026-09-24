@@ -155,12 +155,12 @@ def architecture():
     ax.text(12.0, 2.45, 'units sold', fontsize=13.5, fontweight='bold',
             color=DEEP, va='center', ha='left')
 
-    ax.text(6.4, 0.85,
+    ax.text(6.4, 0.88,
             'Each layer looks for patterns in what the layer before it found.',
             ha='center', fontsize=13, color=DEEP)
-    ax.text(6.4, 0.42,
-            'Three hidden layers with sigmoid, as the assignment requires.',
-            ha='center', fontsize=12.5, color=MUTED)
+    ax.text(6.4, 0.4,
+            '3,009 parameters   ·   Adam   ·   learning rate 0.005',
+            ha='center', fontsize=13, color=CORAL, fontweight='bold')
 
     return save(fig, 'architecture.png')
 
