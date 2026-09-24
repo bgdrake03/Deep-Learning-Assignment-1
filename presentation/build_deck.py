@@ -282,10 +282,12 @@ picture(s, 'pipeline.png', 0.55, 1.8, 12.25, 2.556, folder=FIG)
 text(s, 0.65, 6.6, 12.0, 0.6,
      'Reading from disk is cheap. Holding data in memory is what we cannot '
      'afford.', size=17, color=CORAL, bold=True)
-notes(s, 'Pass one works out the average and spread of each column, which we '
-         'need before we can put the numbers on a common scale. Pass two does '
-         'the learning. Pass three sets aside rows to test on. Each pass holds '
-         'only one chunk at a time.')
+notes(s, 'How do you learn from a file you cannot open? In pieces. We read '
+         'fifty thousand rows at a time and go through the file three '
+         'times. The first pass only measures - running totals give us '
+         "each column's mean and standard deviation without ever keeping a "
+         'row. The second trains, in mini-batches of thirty-two. The third '
+         'holds back twenty percent to test on.')
 
 # ------------------------------------------------------------- 7. the model
 
@@ -296,9 +298,11 @@ text(s, 0.65, 6.1, 12.0, 1.0,
      'Five facts go in. Each layer looks for patterns in what the previous '
      'layer found. One number comes out: how many units we expect to sell.',
      size=18, color=INK, spacing=1.2)
-notes(s, 'A neural network is a chain of simple pattern-finders. Each layer '
-         'takes what the last one noticed and looks for patterns in that. The '
-         'assignment specified three hidden layers with sigmoid activation.')
+notes(s, 'The model is small. Five inputs, then three hidden layers - '
+         'sixty-four, thirty-two and sixteen units, all sigmoid, as the '
+         'assignment specified. One linear output. Three thousand and nine '
+         'parameters, trained with Adam at a learning rate of zero point '
+         'zero zero five.')
 
 # ------------------------------------------------------------- 8. decisions
 
@@ -313,16 +317,21 @@ numbered(s, 0.65, 3.6, 12.0, 2, 'The last step had to be left unrestricted',
 numbered(s, 0.65, 5.25, 12.0, 3, 'We had to mix up the rows before learning',
          'More on this next — it turned out to be the most important thing '
          'we did.')
-notes(s, 'Three decisions we expect questions about. The third one is the '
-         'interesting one and gets its own section.')
+notes(s, 'Three choices worth flagging. Sales run from one to four '
+         'thousand one hundred and sixty-five, and numbers that large '
+         'saturate the sigmoids, so we standardised the target and '
+         'converted predictions back before scoring. The output layer had '
+         'to stay linear, because a sigmoid caps at one. And third, we '
+         'shuffle.')
 
 # ------------------------------------------------------------------ 9. divider
 
 s = divider('then something went wrong', 'Our accuracy suddenly dropped',
             'Switching to reading the file in chunks made the model noticeably '
             'worse. Here is why.')
-notes(s, 'Our first chunked version scored much worse than the version that '
-         'loaded everything. It took a while to work out what was happening.')
+notes(s, 'Which brings me to what nearly sank this. Moving from loading '
+         'everything to reading in chunks dropped our test R-squared from '
+         'point five four to point four four.')
 
 # ------------------------------------------------------------- 10. sorted
 
@@ -344,9 +353,11 @@ text(s, 7.2, 4.35, 5.5, 1.5,
      'In other words: the position of a row in the file tells you almost '
      'exactly which product it is.', size=18, color=CORAL, bold=True,
      spacing=1.2)
-notes(s, 'Learning works by taking small steps based on small samples, and it '
-         'assumes each sample is representative. Sorted data breaks that '
-         'assumption completely.')
+notes(s, 'It took a while to find. The file is sorted by product - row '
+         'number and SKU correlate at point nine nine nine five. So fifty '
+         'thousand consecutive rows are not a fair sample of the shop, '
+         'they are a run of near-identical products. Gradient descent '
+         'assumes each batch is representative. Ours were not.')
 
 # ------------------------------------------------------------------ 11. the fix
 
@@ -403,16 +414,21 @@ ca.major_tick_mark = XL_TICK_MARK.NONE
 text(s, 6.3, 6.55, 6.5, 0.45,
      'The last bar shuffles the whole file — shown only as a ceiling.',
      size=13, color=MUTED, italic=True)
-notes(s, 'A bigger window mixes the rows more thoroughly and scores better, '
-         'but costs more memory. At 200,000 rows we match what a full shuffle '
-         'would give, for about five megabytes.')
+notes(s, 'We cannot shuffle a file we cannot hold. So we fill a two '
+         'hundred thousand row buffer, shuffle it, drain it in batches of '
+         'thirty-two, then refill. About five megabytes, and a fixed '
+         'number of rows, so it does not grow with the file. We swept it - '
+         'no shuffle, point four four. A hundred thousand, point five '
+         'zero. Two hundred thousand, point five three, matching a full '
+         'shuffle.')
 
 # ----------------------------------------------------------------- 12. divider
 
 s = divider('so', 'Did it work?',
             'Accuracy, what the model learned, and whether it stayed inside '
             'memory')
-notes(s, 'Now the results the assignment asks for.')
+notes(s, 'So - did it work? Twelve and a half thousand updates later, '
+         'Rebecca has the results.')
 
 # ------------------------------------------------------------- 13. accuracy
 
